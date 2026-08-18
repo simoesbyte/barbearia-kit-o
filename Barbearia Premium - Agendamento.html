@@ -162,7 +162,6 @@
 
     .form-group input:focus { border-color: var(--gold); }
 
-    /* GRID DE SELEÇÃO DE CORTES */
     .service-selection-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -220,7 +219,6 @@
       color: #000;
     }
 
-    /* GRID DE HORÁRIOS */
     .schedule-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -367,7 +365,7 @@
 
       <button type="button" class="btn btn-block" style="background: var(--green); color: #fff; padding: 18px;" onclick="submitBooking()">FINALIZAR AGENDAMENTO</button>
       
-      <!-- BOTÃO DE COMPARTILHAMENTO NATIVO (ANDROID E IOS) -->
+      <!-- BOTÃO DE COMPARTILHAMENTO ATUALIZADO -->
       <button type="button" class="btn btn-block btn-share" onclick="shareSite()">
         📲 COMPARTILHAR SITE
       </button>
@@ -375,7 +373,6 @@
 
     <main class="content-panel">
 
-      <!-- TAB 1: AGENDAMENTO -->
       <div id="tab-agendamento" class="tab-content active">
         <form id="booking-form">
           <h2>1. Dados Iniciais</h2>
@@ -400,13 +397,11 @@
         </form>
       </div>
 
-      <!-- TAB 2: GRADE DE VALORES -->
       <div id="tab-precos" class="tab-content">
         <h2>Serviços e Valores</h2>
         <div class="price-grid" id="public-price-grid"></div>
       </div>
 
-      <!-- TAB 3: PAINEL DO BARBEIRO -->
       <div id="tab-admin" class="tab-content">
         <h2>Painel de Gestão do Proprietário</h2>
 
@@ -443,8 +438,6 @@
           
           <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
             <button type="button" class="btn" onclick="addNewService()" style="background: #333; color: #fff;">+ Adicionar Corte</button>
-            
-            <!-- BOTÃO DEDICADO PARA APLICAR E SALVAR ALTERAÇÕES -->
             <button type="button" class="btn" onclick="saveProjectSettings()" style="background: var(--gold); color: #000; font-weight: 800;">
               💾 SALVAR E APLICAR ALTERAÇÕES
             </button>
@@ -459,6 +452,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+    // INSIRA AS CONFIGURAÇÕES DO SEU FIREBASE AQUI
     const firebaseConfig = {
       apiKey: "SUA_API_KEY",
       authDomain: "seu-projeto.firebaseapp.com",
@@ -603,21 +597,31 @@
       alert("Chave Pix copiada!");
     };
 
-    /* FUNÇÃO DE COMPARTILHAMENTO MULTIPLATAFORMA (ANDROID & IOS) */
+    /* COMPARTILHAMENTO UNIFICADO UNIVERSAL */
     window.shareSite = function() {
-      const shareData = {
-        title: projectConfig.title,
-        text: `Faça seu agendamento na ${projectConfig.title}!`,
-        url: window.location.href
-      };
+      const siteUrl = window.location.href;
+      const shareText = `Confira a ${projectConfig.title} e faça seu agendamento online:`;
 
-      if (navigator.share) {
-        navigator.share(shareData).catch(() => {});
+      if (navigator.share && window.isSecureContext) {
+        navigator.share({
+          title: projectConfig.title,
+          text: shareText,
+          url: siteUrl
+        }).catch(() => {
+          openWhatsAppShare(shareText, siteUrl);
+        });
       } else {
-        navigator.clipboard.writeText(window.location.href);
-        alert("Link do site copiado para a área de transferência!");
+        openWhatsAppShare(shareText, siteUrl);
       }
     };
+
+    function openWhatsAppShare(text, url) {
+      const fullMessage = `${text}\n${url}`;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url);
+      }
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullMessage)}`, '_blank');
+    }
 
     window.submitBooking = function() {
       const clientName = document.getElementById('client-name').value;
@@ -689,7 +693,6 @@
       renderAdminServices();
     };
 
-    /* SALVA AS ALTERAÇÕES APENAS QUANDO O BOTÃO É CLICADO */
     window.saveProjectSettings = function() {
       projectConfig.title = document.getElementById('admin-title').value;
       projectConfig.subtitle = document.getElementById('admin-subtitle').value;
