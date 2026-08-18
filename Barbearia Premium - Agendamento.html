@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- saved from url=(0050)file:///C:/Users/edard/OneDrive/Desktop/index.html -->
-<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barbearia Premium - Agendamento</title>
+  <title>Barbearia Estilo & Arte - Agendamento em Tempo Real</title>
   <style>
     * {
       box-sizing: border-box;
@@ -32,6 +32,12 @@
       color: #c5a059;
       text-transform: uppercase;
       letter-spacing: 2px;
+    }
+
+    header p {
+      color: #aaa;
+      font-size: 0.95rem;
+      margin-top: 5px;
     }
 
     .admin-btn {
@@ -121,6 +127,7 @@
       font-weight: bold;
       cursor: pointer;
       border: 1px solid transparent;
+      user-select: none;
     }
 
     .time-slot.available {
@@ -240,246 +247,87 @@
   <header>
     <h1>Barbearia Estilo &amp; Arte</h1>
     <p>Agendamento Online rápido</p>
-    <button class="admin-btn" onclick="openAdmin()"> Painel Barbeiro</button>
+    <button class="admin-btn" onclick="openAdmin()">Painel Barbeiro</button>
   </header>
 
   <div class="container">
-    <!-- FORMULÁRIO CLIENTE -->
-    <div class="card">
-      <h2>1. Seus Dados e Serviço</h2>
-      <form id="booking-form">
+    <form id="booking-form" style="display: contents;">
+      <div class="card">
+        <h2>1. Seus Dados e Serviço</h2>
+        
         <div class="form-group">
           <label for="name">Seu Nome:</label>
-          <input type="text" id="name" required="" placeholder="Digite seu nome completo">
+          <input type="text" id="name" required placeholder="Digite seu nome completo">
         </div>
 
         <div class="form-group">
           <label for="service">Escolha o Serviço:</label>
-          <select id="service" required="" onchange="updatePrice()"><option value="1">Corte de Cabelo - R$ 45.00</option><option value="2">Barba Completa - R$ 35.00</option><option value="3">Combo (Corte + Barba) - R$ 70.00</option><option value="4">Sobrancelha - R$ 15.00</option></select>
+          <select id="service" required onchange="updatePrice()"></select>
         </div>
 
         <div class="form-group">
           <label for="date">Data do Agendamento:</label>
-          <input type="date" id="date" required="" onchange="renderTimeGrid()" min="2026-08-17">
+          <input type="date" id="date" required onchange="listenToDateSchedule()">
         </div>
-    </form></div>
-
-    <!-- SELEÇÃO DE HORÁRIO E PAGAMENTO -->
-    <div class="card">
-      <h2>2. Horário e Pagamento</h2>
-      
-      <div class="form-group">
-        <label>Selecione o Horário Disponível:</label>
-        <div class="time-grid" id="time-grid"><div class="time-slot available">06:00</div><div class="time-slot available">06:30</div><div class="time-slot available">07:00</div><div class="time-slot available">07:30</div><div class="time-slot available">08:00</div><div class="time-slot available">08:30</div><div class="time-slot available">09:00</div><div class="time-slot available">09:30</div><div class="time-slot available">10:00</div><div class="time-slot booked" title="Indisponível">10:30</div><div class="time-slot available">11:00</div><div class="time-slot available">11:30</div><div class="time-slot available">12:00</div><div class="time-slot available">12:30</div><div class="time-slot available">13:00</div><div class="time-slot available">13:30</div><div class="time-slot booked" title="Indisponível">14:00</div><div class="time-slot available">14:30</div><div class="time-slot available">15:00</div><div class="time-slot available">15:30</div><div class="time-slot available">16:00</div><div class="time-slot available">16:30</div></div>
       </div>
 
-      <div class="pix-box">
-        <h3> Pagamento via Pix</h3>
-        <p style="font-size: 0.85rem; color: #ccc;">Valor do serviço: <strong id="display-price" style="color: #c5a059;">R$ 45.00</strong></p>
-        <p style="font-size: 0.8rem; margin-top: 5px;">Chave Pix (Telefone):</p>
-        <div class="pix-key">71996427057</div>
-        <p style="font-size: 0.75rem; color: #aaa;">Após pagar, clique abaixo para enviar a confirmação e o comprovante pelo WhatsApp.</p>
-      </div>
+      <div class="card">
+        <h2>2. Horário e Pagamento</h2>
+        
+        <div class="form-group">
+          <label>Selecione o Horário Disponível:</label>
+          <div class="time-grid" id="time-grid"></div>
+        </div>
 
-      <button type="submit" class="btn-submit">Confirmar e Enviar no WhatsApp</button>
-      
-    </div>
+        <div class="pix-box">
+          <h3>Pagamento via Pix</h3>
+          <p style="font-size: 0.85rem; color: #ccc;">Valor do serviço: <strong id="display-price" style="color: #c5a059;">R$ 45.00</strong></p>
+          <p style="font-size: 0.8rem; margin-top: 5px;">Chave Pix (Telefone):</p>
+          <div class="pix-key">71996427057</div>
+          <p style="font-size: 0.75rem; color: #aaa;">Após pagar, clique abaixo para enviar a confirmação e o comprovante pelo WhatsApp.</p>
+        </div>
+
+        <button type="submit" class="btn-submit">Confirmar e Enviar no WhatsApp</button>
+      </div>
+    </form>
   </div>
 
-  <!-- MODAL DO ADMINISTRADOR -->
-  <div class="modal" id="admin-modal" style="display: none;">
+  <div class="modal" id="admin-modal">
     <div class="modal-content">
       <button class="btn-close" onclick="closeAdmin()">Fechar X</button>
-      <h2 style="color: #c5a059; margin-bottom: 15px;"> Painel do Barbeiro</h2>
+      <h2 style="color: #c5a059; margin-bottom: 15px;">Painel do Barbeiro</h2>
       
       <h3>1. Alterar Preço dos Serviços</h3>
-      <div id="services-admin" style="margin-bottom: 20px;">
-          <div style="display:flex; justify-size:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-size:0.85rem;">Corte de Cabelo:</span>
-            <input type="number" value="45" style="width:80px; padding:4px;" onchange="updateServicePrice(1, this.value)">
-          </div>
-        
-          <div style="display:flex; justify-size:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-size:0.85rem;">Barba Completa:</span>
-            <input type="number" value="35" style="width:80px; padding:4px;" onchange="updateServicePrice(2, this.value)">
-          </div>
-        
-          <div style="display:flex; justify-size:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-size:0.85rem;">Combo (Corte + Barba):</span>
-            <input type="number" value="70" style="width:80px; padding:4px;" onchange="updateServicePrice(3, this.value)">
-          </div>
-        
-          <div style="display:flex; justify-size:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-size:0.85rem;">Sobrancelha:</span>
-            <input type="number" value="15" style="width:80px; padding:4px;" onchange="updateServicePrice(4, this.value)">
-          </div>
-        </div>
+      <div id="services-admin" style="margin-bottom: 20px; margin-top: 10px;"></div>
 
       <h3>2. Bloquear/Liberar Horários</h3>
       <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 10px;">Clique no horário para alternar entre livre/bloqueado:</p>
-      <div id="admin-time-list">
-            <div class="admin-slot">
-              <span>06:00</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;06:00&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>06:30</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;06:30&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>07:00</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;07:00&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>07:30</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;07:30&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>08:00</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;08:00&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>08:30</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;08:30&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>09:00</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;09:00&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>09:30</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;09:30&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>10:00</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;10:00&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>10:30</span>
-              <button class="btn-toggle" style="background:#e74c3c; color:white;" onclick="toggleBlockTime(&#39;10:30&#39;)">
-                Ocupado / Bloqueado
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>11:00</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;11:00&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>11:30</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;11:30&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>12:00</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;12:00&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>12:30</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;12:30&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>13:00</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;13:00&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>13:30</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;13:30&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>14:00</span>
-              <button class="btn-toggle" style="background:#e74c3c; color:white;" onclick="toggleBlockTime(&#39;14:00&#39;)">
-                Ocupado / Bloqueado
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>14:30</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;14:30&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>15:00</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;15:00&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>15:30</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;15:30&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>16:00</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;16:00&#39;)">
-                Livre
-              </button>
-            </div>
-          
-            <div class="admin-slot">
-              <span>16:30</span>
-              <button class="btn-toggle" style="background:#2ecc71; color:white;" onclick="toggleBlockTime(&#39;16:30&#39;)">
-                Livre
-              </button>
-            </div>
-          </div>
+      <div id="admin-time-list"></div>
     </div>
   </div>
 
-  <script>
-    const OWNER_PHONE = "5571996427057"; // Número para onde vai o agendamento
-    const ADMIN_PASS = "1234"; // Senha para o painel do barbeiro
+  <!-- MÓDULOS DO FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // Serviços configuráveis pelo barbeiro
+    // INSIRA AS SUAS CONFIGURAÇÕES DO FIREBASE AQUI
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "seu-projeto.firebaseapp.com",
+      databaseURL: "https://seu-projeto-default-rtdb.firebaseio.com",
+      projectId: "seu-projeto",
+      storageBucket: "seu-projeto.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const OWNER_PHONE = "5571996427057";
+    const ADMIN_PASS = "1234";
+
     let services = [
       { id: 1, name: "Corte de Cabelo", price: 45.00 },
       { id: 2, name: "Barba Completa", price: 35.00 },
@@ -487,19 +335,27 @@
       { id: 4, name: "Sobrancelha", price: 15.00 }
     ];
 
-    // Horários bloqueados globalmente pelo barbeiro
-    let blockedTimes = ["10:30", "14:00"]; 
+    let bookedTimes = [];
     let selectedTime = null;
 
-    // Configuração inicial de datas
     const dateInput = document.getElementById('date');
     dateInput.min = new Date().toISOString().split('T')[0];
     dateInput.value = dateInput.min;
 
-    function init() {
-      loadServicesSelect();
-      renderTimeGrid();
-    }
+    // ESCUTA ALTERAÇÕES DE HORÁRIO EM TEMPO REAL PARA A DATA SELECIONADA
+    window.listenToDateSchedule = function() {
+      const selectedDate = dateInput.value;
+      const dateRef = ref(db, 'agendamentos/' + selectedDate);
+
+      onValue(dateRef, (snapshot) => {
+        const data = snapshot.val();
+        bookedTimes = data ? Object.keys(data) : [];
+        renderTimeGrid();
+        if (document.getElementById('admin-modal').style.display === 'flex') {
+          renderAdminPanel();
+        }
+      });
+    };
 
     function loadServicesSelect() {
       const select = document.getElementById('service');
@@ -513,13 +369,13 @@
       updatePrice();
     }
 
-    function updatePrice() {
+    window.updatePrice = function() {
       const serviceId = document.getElementById('service').value;
       const service = services.find(s => s.id == serviceId);
       if (service) {
         document.getElementById('display-price').innerText = `R$ ${service.price.toFixed(2)}`;
       }
-    }
+    };
 
     function renderTimeGrid() {
       const grid = document.getElementById('time-grid');
@@ -531,11 +387,12 @@
           if (h === 16 && m > 30) continue;
 
           const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+          const timeKey = timeStr.replace(':', '_');
           const slot = document.createElement('div');
           slot.classList.add('time-slot');
           slot.innerText = timeStr;
 
-          if (blockedTimes.includes(timeStr)) {
+          if (bookedTimes.includes(timeKey)) {
             slot.classList.add('booked');
             slot.title = "Indisponível";
           } else {
@@ -551,7 +408,7 @@
       }
     }
 
-    // ENVIO DO AGENDAMENTO VIA WHATSAPP
+    // REGISTRA NO FIREBASE E REDIRECIONA PARA O WHATSAPP
     document.getElementById('booking-form').onsubmit = function(e) {
       e.preventDefault();
       
@@ -563,24 +420,31 @@
       const name = document.getElementById('name').value;
       const serviceId = document.getElementById('service').value;
       const service = services.find(s => s.id == serviceId);
-      const date = document.getElementById('date').value.split('-').reverse().join('/');
+      const selectedDate = dateInput.value;
+      const formattedDate = selectedDate.split('-').reverse().join('/');
+      const timeKey = selectedTime.replace(':', '_');
 
-      // Mensagem formatada enviada ao Barbeiro
-      const text = ` Novo Agendamento na Barbearia!\n\n` +
-                   ` Cliente: ${name}\n` +
-                   ` Serviço: ${service.name}\n` +
-                   ` Valor: R$ ${service.price.toFixed(2)}\n` +
-                   ` Data: ${date}\n` +
-                   ` Horário: ${selectedTime}\n\n` +
-                   ` Pagamento via Pix realizado na chave 71996427057.\n` +
-                   ` Segue o comprovante em anexo.`;
+      // Salva no banco de dados em tempo real
+      set(ref(db, `agendamentos/${selectedDate}/${timeKey}`), {
+        cliente: name,
+        servico: service.name,
+        valor: service.price
+      }).then(() => {
+        const text = ` Novo Agendamento na Barbearia!\n\n` +
+                     ` Cliente: ${name}\n` +
+                     ` Serviço: ${service.name}\n` +
+                     ` Valor: R$ ${service.price.toFixed(2)}\n` +
+                     ` Data: ${formattedDate}\n` +
+                     ` Horário: ${selectedTime}\n\n` +
+                     ` Pagamento via Pix realizado na chave 71996427057.\n` +
+                     ` Segue o comprovante em anexo.`;
 
-      const whatsappUrl = `https://wa.me/${OWNER_PHONE}?text=${encodeURIComponent(text)}`;
-      window.open(whatsappUrl, '_blank');
+        const whatsappUrl = `https://wa.me/${OWNER_PHONE}?text=${encodeURIComponent(text)}`;
+        window.open(whatsappUrl, '_blank');
+      });
     };
 
-    // FUNÇÕES DO PAINEL DE CONTROLE (ADMINISTRADOR)
-    function openAdmin() {
+    window.openAdmin = function() {
       const pass = prompt("Digite a senha do barbeiro:");
       if (pass === ADMIN_PASS) {
         renderAdminPanel();
@@ -588,40 +452,39 @@
       } else if (pass !== null) {
         alert("Senha incorreta!");
       }
-    }
+    };
 
-    function closeAdmin() {
+    window.closeAdmin = function() {
       document.getElementById('admin-modal').style.display = 'none';
       loadServicesSelect();
       renderTimeGrid();
-    }
+    };
 
     function renderAdminPanel() {
-      // Editar Preços
       const servicesDiv = document.getElementById('services-admin');
       servicesDiv.innerHTML = '';
       services.forEach(s => {
         servicesDiv.innerHTML += `
-          <div style="display:flex; justify-size:space-between; align-items:center; margin-bottom:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <span style="font-size:0.85rem;">${s.name}:</span>
             <input type="number" value="${s.price}" style="width:80px; padding:4px;" onchange="updateServicePrice(${s.id}, this.value)">
           </div>
         `;
       });
 
-      // Bloquear Horários
       const timesDiv = document.getElementById('admin-time-list');
       timesDiv.innerHTML = '';
       for (let h = 6; h <= 16; h++) {
         for (let m of [0, 30]) {
           if (h === 16 && m > 30) continue;
           const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-          const isBlocked = blockedTimes.includes(timeStr);
+          const timeKey = timeStr.replace(':', '_');
+          const isBlocked = bookedTimes.includes(timeKey);
           
           timesDiv.innerHTML += `
             <div class="admin-slot">
               <span>${timeStr}</span>
-              <button class="btn-toggle" style="background:${isBlocked ? '#e74c3c' : '#2ecc71'}; color:white;" onclick="toggleBlockTime('${timeStr}')">
+              <button type="button" class="btn-toggle" style="background:${isBlocked ? '#e74c3c' : '#2ecc71'}; color:white;" onclick="toggleBlockTime('${timeStr}')">
                 ${isBlocked ? 'Ocupado / Bloqueado' : 'Livre'}
               </button>
             </div>
@@ -630,21 +493,25 @@
       }
     }
 
-    function updateServicePrice(id, newPrice) {
+    window.updateServicePrice = function(id, newPrice) {
       const s = services.find(item => item.id == id);
       if (s) s.price = parseFloat(newPrice) || 0;
-    }
+    };
 
-    function toggleBlockTime(timeStr) {
-      if (blockedTimes.includes(timeStr)) {
-        blockedTimes = blockedTimes.filter(t => t !== timeStr);
+    window.toggleBlockTime = function(timeStr) {
+      const selectedDate = dateInput.value;
+      const timeKey = timeStr.replace(':', '_');
+      const timeRef = ref(db, `agendamentos/${selectedDate}/${timeKey}`);
+
+      if (bookedTimes.includes(timeKey)) {
+        set(timeRef, null); // Libera o horário
       } else {
-        blockedTimes.push(timeStr);
+        set(timeRef, { bloqueadoPeloAdmin: true }); // Bloqueia o horário
       }
-      renderAdminPanel();
-    }
+    };
 
-    init();
+    loadServicesSelect();
+    listenToDateSchedule();
   </script>
-
-</body></html>
+</body>
+</html>
