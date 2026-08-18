@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barbearia Premium - Dashboard & Agendamento</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-body: #050505;
+      --bg-card: #0d0d0d;
+      --bg-input: #141414;
+      --gold: #d4af37;
+      --gold-light: #f3e5ab;
+      --green: #00b341;
+      --yellow: #ffd700;
+      --red: #e60000;
+      --border: 1px solid rgba(212, 175, 55, 0.3);
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      width: 100%;
+      background: linear-gradient(180deg, #141414 0%, var(--bg-body) 100%);
+      border-bottom: var(--border);
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    header .brand h1 {
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      font-size: 1.6rem;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+
+    header .brand p {
+      color: #aaa;
+      font-size: 0.8rem;
+    }
+
+    .nav-tabs {
+      display: flex;
+      background: var(--bg-card);
+      border: var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 10px 18px;
+      background: transparent;
+      border: none;
+      color: #888;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--gold);
+      color: #000;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 25px;
+      max-width: 1400px;
+      width: 100%;
+      margin: 25px auto;
+      padding: 0 25px;
+      flex: 1;
+    }
+
+    @media (max-width: 900px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sidebar-panel, .content-panel {
+      background: var(--bg-card);
+      border: var(--border);
+      border-radius: var(--radius);
+      padding: 25px;
+      height: fit-content;
+    }
+
+    .sidebar-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: var(--gold);
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      padding-bottom: 8px;
+    }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label {
+      display: block;
+      color: var(--gold-light);
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px;
+      background: var(--bg-input);
+      border: 1px solid #333;
+      color: #fff;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .form-group input:focus { border-color: var(--gold); }
+
+    .service-selection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .service-box {
+      border: 1px solid #333;
+      background: var(--bg-input);
+      padding: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 90px;
+    }
+
+    .service-box:hover {
+      border-color: var(--gold);
+    }
+
+    .service-box .s-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .service-box .s-price {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .service-box .s-status {
+      font-size: 0.75rem;
+      margin-top: 5px;
+      text-transform: uppercase;
+      font-weight: bold;
+      color: transparent;
+    }
+
+    .service-box.selected {
+      background: var(--gold);
+      border-color: var(--gold);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+
+    .service-box.selected .s-name,
+    .service-box.selected .s-price,
+    .service-box.selected .s-status {
+      color: #000;
+    }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .time-card {
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 0.95rem;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .status-free {
+      background-color: var(--green);
+      color: #ffffff;
+      cursor: pointer;
+    }
+    .status-free:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 179, 65, 0.4);
+    }
+    .status-selecting {
+      background-color: var(--yellow);
+      color: #000000;
+      cursor: pointer;
+      animation: pulse 1s infinite alternate;
+    }
+    .status-busy {
+      background-color: var(--red);
+      color: #ffffff;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+    @keyframes pulse {
+      from { opacity: 0.8; }
+      to { opacity: 1; }
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 15px;
+    }
+
+    .price-card {
+      background: var(--bg-input);
+      border: var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .price-card-title { font-size: 0.9rem; font-weight: 600; }
+    .price-card-value { color: var(--gold); font-weight: 800; font-size: 1.1rem; }
+
+    .pix-card, .share-box {
+      background: #111;
+      border: 1px dashed var(--gold);
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+    .pix-input-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .pix-input-group input {
+      flex: 1;
+      background: #000;
+      border: 1px solid var(--gold);
+      color: #fff;
+      padding: 8px;
+      text-align: center;
+      font-family: monospace;
+      font-weight: bold;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .btn {
+      background: var(--gold);
+      color: #000;
+      border: none;
+      padding: 12px 20px;
+      font-weight: 800;
+      text-transform: uppercase;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-block { width: 100%; margin-top: 10px; }
+
+    .admin-service-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <h1 id="header-title">BARBEARIA PREMIUM</h1>
+      <p id="header-subtitle">Estilo, Tradição e Excelência</p>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-agendamento')">📅 Agendamento</button>
+      <button class="tab-btn" onclick="switchTab('tab-precos')">📋 Serviços</button>
+      <button class="tab-btn" onclick="switchTab('tab-admin')">⚙️ Barbeiro</button>
+    </div>
+  </header>
+
+  <div class="main-layout">
+
+    <aside class="sidebar-panel">
+      <h2>Resumo &amp; Pagamento</h2>
+
+      <div class="pix-card">
+        <div style="color: var(--gold-light); font-size: 0.75rem; font-weight: bold;">VALOR A PAGAR VIA PIX</div>
+        <div style="font-size: 1.8rem; font-weight: 800; color: var(--gold); margin: 10px 0;" id="total-price-display">R$ 0.00</div>
+        <div class="pix-input-group">
+          <input type="text" id="pix-key-display" readonly>
+          <button type="button" class="btn" onclick="copyPixKey()">Copiar</button>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-block" style="background: var(--green); color: #fff; padding: 18px;" onclick="submitBooking()">FINALIZAR AGENDAMENTO</button>
+      
+      <!-- GERADOR DE LINK DE COMPARTILHAMENTO E QR CODE -->
+      <div class="share-box" style="margin-top: 10px;">
+        <div style="color: var(--gold-light); font-size: 0.75rem; font-weight: bold; margin-bottom: 8px;">🔗 LINK DO SEU SITE</div>
+        <div class="pix-input-group">
+          <input type="text" id="share-link-input" readonly>
+          <button type="button" class="btn" onclick="copySiteLink()">COPIAR LINK</button>
+        </div>
+        
+        <button type="button" class="btn btn-block" style="background: #25D366; color: #fff; margin-top: 10px;" onclick="sendViaWhatsApp()">
+          💬 ENVIAR NO WHATSAPP
+        </button>
+
+        <div style="margin-top: 15px;">
+          <div style="color: #aaa; font-size: 0.7rem; font-weight: bold; margin-bottom: 5px;">QR CODE PARA CLIENTES</div>
+          <img id="qr-code-img" src="" alt="QR Code do Site" style="width: 130px; height: 130px; border-radius: 6px; border: 1px solid var(--gold);">
+        </div>
+      </div>
+    </aside>
+
+    <main class="content-panel">
+
+      <div id="tab-agendamento" class="tab-content active">
+        <form id="booking-form">
+          <h2>1. Dados Iniciais</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div class="form-group">
+              <label for="client-name">Seu Nome</label>
+              <input type="text" id="client-name" required placeholder="Digite seu nome">
+            </div>
+            <div class="form-group">
+              <label for="booking-date">Data Desejada</label>
+              <input type="date" id="booking-date" required onchange="loadScheduleForDate()">
+            </div>
+          </div>
+
+          <h2 style="margin-top: 15px;">2. Escolha o Corte</h2>
+          <div class="service-selection-grid" id="service-selection-grid"></div>
+
+          <div id="schedule-container" style="display: none; margin-top: 25px;">
+            <h2>3. Horários Disponíveis</h2>
+            <div class="schedule-grid" id="schedule-grid"></div>
+          </div>
+        </form>
+      </div>
+
+      <div id="tab-precos" class="tab-content">
+        <h2>Serviços e Valores</h2>
+        <div class="price-grid" id="public-price-grid"></div>
+      </div>
+
+      <div id="tab-admin" class="tab-content">
+        <h2>Painel de Gestão do Proprietário</h2>
+
+        <div id="admin-auth">
+          <div class="form-group" style="max-width: 300px;">
+            <label for="admin-pass">Senha Administrativa</label>
+            <input type="password" id="admin-pass" placeholder="Senha (padrão: 3485)">
+          </div>
+          <button type="button" class="btn" onclick="authenticateAdmin()">Acessar Painel</button>
+        </div>
+
+        <div id="admin-panel" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+            <div class="form-group">
+              <label for="admin-title">Nome da Barbearia</label>
+              <input type="text" id="admin-title">
+            </div>
+            <div class="form-group">
+              <label for="admin-subtitle">Slogan</label>
+              <input type="text" id="admin-subtitle">
+            </div>
+            <div class="form-group">
+              <label for="admin-pix">Chave Pix</label>
+              <input type="text" id="admin-pix">
+            </div>
+            <div class="form-group">
+              <label for="admin-phone">WhatsApp (DDD+Número)</label>
+              <input type="text" id="admin-phone">
+            </div>
+          </div>
+
+          <h2 style="margin-top: 20px;">Editar Tabela de Cortes</h2>
+          <div id="admin-services-list"></div>
+          
+          <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+            <button type="button" class="btn" onclick="addNewService()" style="background: #333; color: #fff;">+ Adicionar Corte</button>
+            <button type="button" class="btn" onclick="saveProjectSettings()" style="background: var(--gold); color: #000; font-weight: 800;">
+              💾 SALVAR E APLICAR ALTERAÇÕES
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "seu-projeto.firebaseapp.com",
+      databaseURL: "https://seu-projeto-default-rtdb.firebaseio.com",
+      projectId: "seu-projeto",
+      storageBucket: "seu-projeto.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let projectConfig = {
+      title: "BARBEARIA PREMIUM",
+      subtitle: "Estilo, Tradição e Excelência",
+      pixKey: "71996427057",
+      phone: "5571996427057",
+      services: [
+        { id: 1, name: "Corte Simples", price: 30.00 },
+        { id: 2, name: "Corte com Tesoura", price: 40.00 },
+        { id: 3, name: "Corte com Tesoura e Máquina", price: 35.00 }
+      ]
+    };
+
+    let bookedTimes = [];
+    let selectedTime = null;
+    let selectedServiceObject = null;
+
+    // GERADOR DE LINK E QR CODE AUTOMÁTICO
+    function initShareTools() {
+      const currentUrl = window.location.href;
+      document.getElementById('share-link-input').value = currentUrl;
+      
+      // Gera QR Code automático
+      const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentUrl)}`;
+      document.getElementById('qr-code-img').src = qrApi;
+    }
+
+    window.copySiteLink = function() {
+      const linkInput = document.getElementById('share-link-input');
+      linkInput.select();
+      navigator.clipboard.writeText(linkInput.value);
+      alert("Link do site copiado! Você já pode colar e enviar no WhatsApp ou Instagram.");
+    };
+
+    window.sendViaWhatsApp = function() {
+      const currentUrl = window.location.href;
+      const text = `Agende seu horário na ${projectConfig.title} acessando o link:\n${currentUrl}`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    };
+
+    window.switchTab = function(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      event.currentTarget.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    };
+
+    function listenToProjectSettings() {
+      onValue(ref(db, 'configuracoes'), (snapshot) => {
+        const data = snapshot.val();
+        if (data) projectConfig = data;
+        renderAppUI();
+      });
+    }
+
+    function renderAppUI() {
+      document.getElementById('header-title').innerText = projectConfig.title;
+      document.getElementById('header-subtitle').innerText = projectConfig.subtitle;
+      document.getElementById('pix-key-display').value = projectConfig.pixKey;
+
+      renderPublicPriceGrid();
+      renderServiceSelectionGrid();
+    }
+
+    function renderServiceSelectionGrid() {
+      const grid = document.getElementById('service-selection-grid');
+      grid.innerHTML = '';
+
+      projectConfig.services.forEach(s => {
+        const isSelected = selectedServiceObject && selectedServiceObject.id === s.id;
+        
+        const box = document.createElement('div');
+        box.className = 'service-box' + (isSelected ? ' selected' : '');
+        box.innerHTML = `
+          <div class="s-name">${s.name}</div>
+          <div class="s-price">R$ ${parseFloat(s.price).toFixed(2)}</div>
+          <div class="s-status">${isSelected ? '✓ Selecionado' : 'Clique para Escolher'}</div>
+        `;
+        
+        box.onclick = () => {
+          selectedServiceObject = s;
+          renderServiceSelectionGrid();
+          updateTotalPrice();
+        };
+
+        grid.appendChild(box);
+      });
+    }
+
+    function renderPublicPriceGrid() {
+      const priceGrid = document.getElementById('public-price-grid');
+      priceGrid.innerHTML = '';
+      projectConfig.services.forEach(s => {
+        priceGrid.innerHTML += `
+          <div class="price-card">
+            <span class="price-card-title">${s.name}</span>
+            <span class="price-card-value">R$ ${parseFloat(s.price).toFixed(2)}</span>
+          </div>`;
+      });
+    }
+
+    window.updateTotalPrice = function() {
+      const price = selectedServiceObject ? parseFloat(selectedServiceObject.price) : 0;
+      document.getElementById('total-price-display').innerText = `R$ ${price.toFixed(2)}`;
+    };
+
+    window.loadScheduleForDate = function() {
+      const dateVal = document.getElementById('booking-date').value;
+      if (!dateVal) return;
+
+      document.getElementById('schedule-container').style.display = 'block';
+
+      onValue(ref(db, 'agendamentos/' + dateVal), (snapshot) => {
+        const data = snapshot.val();
+        bookedTimes = data ? Object.keys(data) : [];
+        renderScheduleGrid();
+      });
+    };
+
+    function renderScheduleGrid() {
+      const grid = document.getElementById('schedule-grid');
+      grid.innerHTML = '';
+
+      for (let h = 6; h <= 16; h++) {
+        for (let m of [0, 30]) {
+          const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+          const timeKey = timeStr.replace(':', '_');
+          const isBooked = bookedTimes.includes(timeKey);
+
+          const card = document.createElement('div');
+          card.innerText = timeStr;
+
+          if (isBooked) {
+            card.className = 'time-card status-busy';
+            if (selectedTime === timeStr) selectedTime = null;
+          } else if (selectedTime === timeStr) {
+            card.className = 'time-card status-selecting';
+            card.onclick = () => { selectedTime = null; renderScheduleGrid(); };
+          } else {
+            card.className = 'time-card status-free';
+            card.onclick = () => { selectedTime = timeStr; renderScheduleGrid(); };
+          }
+
+          grid.appendChild(card);
+        }
+      }
+    }
+
+    window.copyPixKey = function() {
+      const input = document.getElementById('pix-key-display');
+      navigator.clipboard.writeText(input.value);
+      alert("Chave Pix copiada!");
+    };
+
+    window.submitBooking = function() {
+      const clientName = document.getElementById('client-name').value;
+      const bookingDate = document.getElementById('booking-date').value;
+
+      if (!clientName || !bookingDate) {
+        alert("Preencha seu nome e data primeiro!"); return;
+      }
+      if (!selectedServiceObject) {
+        alert("Por favor, clique e escolha um Corte!"); return;
+      }
+      if (!selectedTime) {
+        alert("Por favor, selecione um horário verde disponível!"); return;
+      }
+
+      const timeKey = selectedTime.replace(':', '_');
+
+      set(ref(db, `agendamentos/${bookingDate}/${timeKey}`), {
+        cliente: clientName,
+        servico: selectedServiceObject.name
+      }).then(() => {
+        const text = `*NOVO AGENDAMENTO*\n\n` +
+                     `Nome: ${clientName}\n` +
+                     `Corte: ${selectedServiceObject.name}\n` +
+                     `Data: ${bookingDate}\n` +
+                     `Horário: ${selectedTime}`;
+
+        window.open(`https://wa.me/${projectConfig.phone}?text=${encodeURIComponent(text)}`, '_blank');
+      });
+    };
+
+    window.authenticateAdmin = function() {
+      if (document.getElementById('admin-pass').value === "3485") {
+        document.getElementById('admin-auth').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+
+        document.getElementById('admin-title').value = projectConfig.title;
+        document.getElementById('admin-subtitle').value = projectConfig.subtitle;
+        document.getElementById('admin-pix').value = projectConfig.pixKey;
+        document.getElementById('admin-phone').value = projectConfig.phone;
+
+        renderAdminServices();
+      } else {
+        alert("Senha incorreta!");
+      }
+    };
+
+    function renderAdminServices() {
+      const container = document.getElementById('admin-services-list');
+      container.innerHTML = '';
+
+      projectConfig.services.forEach((s, index) => {
+        container.innerHTML += `
+          <div class="admin-service-row">
+            <input type="text" id="service-name-${index}" value="${s.name}" style="flex:2;">
+            <input type="number" id="service-price-${index}" value="${s.price}" style="flex:1;">
+            <button type="button" class="btn" style="background:var(--red); color:#fff;" onclick="removeService(${index})">X</button>
+          </div>`;
+      });
+    }
+
+    window.addNewService = function() {
+      projectConfig.services.push({ id: Date.now(), name: "Novo Corte", price: 30.00 });
+      renderAdminServices();
+    };
+
+    window.removeService = function(index) {
+      projectConfig.services.splice(index, 1);
+      renderAdminServices();
+    };
+
+    window.saveProjectSettings = function() {
+      projectConfig.title = document.getElementById('admin-title').value;
+      projectConfig.subtitle = document.getElementById('admin-subtitle').value;
+      projectConfig.pixKey = document.getElementById('admin-pix').value;
+      projectConfig.phone = document.getElementById('admin-phone').value;
+
+      projectConfig.services.forEach((s, index) => {
+        const nameInput = document.getElementById(`service-name-${index}`);
+        const priceInput = document.getElementById(`service-price-${index}`);
+        if (nameInput && priceInput) {
+          s.name = nameInput.value;
+          s.price = parseFloat(priceInput.value) || 0;
+        }
+      });
+
+      set(ref(db, 'configuracoes'), projectConfig).then(() => {
+        alert("Alterações salvas e aplicadas com sucesso!");
+      });
+    };
+
+    const dateInput = document.getElementById('booking-date');
+    dateInput.min = new Date().toISOString().split('T')[0];
+
+    initShareTools();
+    listenToProjectSettings();
+  </script>
+</body>
+</html>
