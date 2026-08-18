@@ -281,7 +281,7 @@
     .price-card-title { font-size: 0.9rem; font-weight: 600; }
     .price-card-value { color: var(--gold); font-weight: 800; font-size: 1.1rem; }
 
-    .pix-card {
+    .pix-card, .share-box {
       background: #111;
       border: 1px dashed var(--gold);
       border-radius: 8px;
@@ -303,6 +303,7 @@
       font-family: monospace;
       font-weight: bold;
       border-radius: 4px;
+      font-size: 0.8rem;
     }
 
     .btn {
@@ -316,16 +317,6 @@
       cursor: pointer;
     }
     .btn-block { width: 100%; margin-top: 10px; }
-
-    .btn-share {
-      background: #1e1e1e;
-      color: var(--gold);
-      border: 1px solid var(--gold);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
 
     .admin-service-row {
       display: flex;
@@ -365,10 +356,23 @@
 
       <button type="button" class="btn btn-block" style="background: var(--green); color: #fff; padding: 18px;" onclick="submitBooking()">FINALIZAR AGENDAMENTO</button>
       
-      <!-- BOTÃO DE COMPARTILHAMENTO ATUALIZADO -->
-      <button type="button" class="btn btn-block btn-share" onclick="shareSite()">
-        📲 COMPARTILHAR SITE
-      </button>
+      <!-- GERADOR DE LINK DE COMPARTILHAMENTO E QR CODE -->
+      <div class="share-box" style="margin-top: 10px;">
+        <div style="color: var(--gold-light); font-size: 0.75rem; font-weight: bold; margin-bottom: 8px;">🔗 LINK DO SEU SITE</div>
+        <div class="pix-input-group">
+          <input type="text" id="share-link-input" readonly>
+          <button type="button" class="btn" onclick="copySiteLink()">COPIAR LINK</button>
+        </div>
+        
+        <button type="button" class="btn btn-block" style="background: #25D366; color: #fff; margin-top: 10px;" onclick="sendViaWhatsApp()">
+          💬 ENVIAR NO WHATSAPP
+        </button>
+
+        <div style="margin-top: 15px;">
+          <div style="color: #aaa; font-size: 0.7rem; font-weight: bold; margin-bottom: 5px;">QR CODE PARA CLIENTES</div>
+          <img id="qr-code-img" src="" alt="QR Code do Site" style="width: 130px; height: 130px; border-radius: 6px; border: 1px solid var(--gold);">
+        </div>
+      </div>
     </aside>
 
     <main class="content-panel">
@@ -452,7 +456,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // INSIRA AS CONFIGURAÇÕES DO SEU FIREBASE AQUI
     const firebaseConfig = {
       apiKey: "SUA_API_KEY",
       authDomain: "seu-projeto.firebaseapp.com",
@@ -481,6 +484,29 @@
     let bookedTimes = [];
     let selectedTime = null;
     let selectedServiceObject = null;
+
+    // GERADOR DE LINK E QR CODE AUTOMÁTICO
+    function initShareTools() {
+      const currentUrl = window.location.href;
+      document.getElementById('share-link-input').value = currentUrl;
+      
+      // Gera QR Code automático
+      const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentUrl)}`;
+      document.getElementById('qr-code-img').src = qrApi;
+    }
+
+    window.copySiteLink = function() {
+      const linkInput = document.getElementById('share-link-input');
+      linkInput.select();
+      navigator.clipboard.writeText(linkInput.value);
+      alert("Link do site copiado! Você já pode colar e enviar no WhatsApp ou Instagram.");
+    };
+
+    window.sendViaWhatsApp = function() {
+      const currentUrl = window.location.href;
+      const text = `Agende seu horário na ${projectConfig.title} acessando o link:\n${currentUrl}`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    };
 
     window.switchTab = function(tabId) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -597,32 +623,6 @@
       alert("Chave Pix copiada!");
     };
 
-    /* COMPARTILHAMENTO UNIFICADO UNIVERSAL */
-    window.shareSite = function() {
-      const siteUrl = window.location.href;
-      const shareText = `Confira a ${projectConfig.title} e faça seu agendamento online:`;
-
-      if (navigator.share && window.isSecureContext) {
-        navigator.share({
-          title: projectConfig.title,
-          text: shareText,
-          url: siteUrl
-        }).catch(() => {
-          openWhatsAppShare(shareText, siteUrl);
-        });
-      } else {
-        openWhatsAppShare(shareText, siteUrl);
-      }
-    };
-
-    function openWhatsAppShare(text, url) {
-      const fullMessage = `${text}\n${url}`;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(url);
-      }
-      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullMessage)}`, '_blank');
-    }
-
     window.submitBooking = function() {
       const clientName = document.getElementById('client-name').value;
       const bookingDate = document.getElementById('booking-date').value;
@@ -716,6 +716,7 @@
     const dateInput = document.getElementById('booking-date');
     dateInput.min = new Date().toISOString().split('T')[0];
 
+    initShareTools();
     listenToProjectSettings();
   </script>
 </body>
